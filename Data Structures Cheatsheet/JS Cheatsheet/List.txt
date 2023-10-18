@@ -1,0 +1,1 @@
+In JavaScript, there's no built-in List class, but you can use arrays, as shown in the Array section.
