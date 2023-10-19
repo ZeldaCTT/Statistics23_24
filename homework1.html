@@ -74,11 +74,13 @@
                         <hr class="wp-block-separator has-alpha-channel-opacity">
                         <h4 class="wp-block-heading"><strong><em>Briefly describe the main sampling techniques</em></strong></h4>
                         <p><strong>Sampling techniques</strong> are methods used to select a subset of individuals or items from a larger population for the purpose of conducting research or making inferences about the population. There are several main sampling techniques, each with its own advantages and disadvantages:</p>
-                        <p><ul>
-                               <li>Simple Random Sampling: In this technique, every individual or item in the population has an equal chance of being selected for the sample.</li>
-                               <li>Cluster Sampling: In cluster sampling, the population is divided into clusters or groups, and a random sample of clusters is selected. Then, all individuals or items within the selected clusters are included in the sample.</li>
-                               <li>Stratified Sampling: With stratified sampling, the population is divided into distinct subgroups or strata based on a specific characteristic (e.g., age, gender, location). Then, a random sample is independently selected from each stratum in proportion to its size.</li>
-                        </ul></p>
+                        <p>
+                            <ul>
+                                <li>Simple Random Sampling: In this technique, every individual or item in the population has an equal chance of being selected for the sample.</li>
+                                <li>Cluster Sampling: In cluster sampling, the population is divided into clusters or groups, and a random sample of clusters is selected. Then, all individuals or items within the selected clusters are included in the sample.</li>
+                                <li>Stratified Sampling: With stratified sampling, the population is divided into distinct subgroups or strata based on a specific characteristic (e.g., age, gender, location). Then, a random sample is independently selected from each stratum in proportion to its size.</li>
+                            </ul>
+                        </p>
                         <p></p>
                         <p></p>
                         <hr class="wp-block-separator has-alpha-channel-opacity">
@@ -93,6 +95,70 @@
                         </p>
                         <hr class="wp-block-separator has-alpha-channel-opacity">
                         <h2 class="section-heading">Application</h2>
+
+                        <p>Write a program in C# or VB.NET that creates a window containing a single line, point, circle, rectangle.</p>
+
+                        <div class="wp-block-syntaxhighlighter-code ">
+                            <pre class="brush: csharp; title: ; notranslate" title="">
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace project1
+{
+class DrawingForm : Form
+{
+    public DrawingForm()
+    {
+        // Set the title of the window
+        this.Text = "Drawing Shapes";
+
+        // Set the size of the window
+        this.Size = new Size(400, 400);
+    }
+
+    protected override void OnPaint(PaintEventArgs e)
+    {
+        base.OnPaint(e);
+
+        // Create a Graphics object to draw on the form
+        Graphics g = e.Graphics;
+
+        // Create a Pen for drawing lines
+        Pen pen = new Pen(Color.Blue, 2);
+
+        // Draw a line
+        g.DrawLine(pen, 50, 50, 150, 50);
+
+        // Create a SolidBrush for drawing points
+        SolidBrush pointBrush = new SolidBrush(Color.Red);
+
+        // Draw a point
+        g.FillEllipse(pointBrush, 200, 50, 5, 5);
+
+        // Draw a circle
+        g.DrawEllipse(pen, 50, 100, 100, 100);
+
+        // Draw a rectangle
+        g.DrawRectangle(pen, 200, 100, 100, 50);
+
+        // Clean up resources
+        pen.Dispose();
+        pointBrush.Dispose();
+    }
+
+    static void Main()
+    {
+        Application.Run(new DrawingForm());
+    }
+}
+}
+</pre>
+                        </div>
+                        <p>Write a program in JavaScript or TypeScript that creates a window containing a single line, point, circle, rectangle.</p>
                     </div>
                 </div>
             </div>
