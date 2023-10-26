@@ -68,6 +68,556 @@
                         </p>
                         <h4 class="wp-block-heading"><strong><em>Solution:</em></strong></h4>
                         <p></p>
+                        <h2 class="section-heading">Part A</h2>
+
+                        <h2 class="section-heading">JS Solution:</h2>
+
+                        <p></p>
+                        <textarea cols="50" rows="40" readonly>
+const fs = require('fs');
+
+// Simulated data 
+const M = 3; // Number of systems
+const N = 5; // Number of attacks
+const p = 0.2; // Penetration probability
+
+const scores = [];
+const random = () => (Math.random() < p ? -1 : 1);
+
+for (let system = 0; system < M; system++) {
+    const systemScores = [0];
+    for (let attack = 1; attack <= N; attack++) {
+        const outcome = random();
+        systemScores.push(systemScores[attack - 1] + outcome);
+    }
+    scores.push(systemScores);
+}
+
+// Convert the data to JSON
+const jsonData = JSON.stringify(scores);
+
+// Write the JSON data to a file
+fs.writeFile('scores.json', jsonData, (err) => {
+    if (err) {
+        console.error('Error writing JSON file:', err);
+    } else {
+        console.log('JSON file "scores.json" created successfully.');
+    }
+});
+
+</textarea>
+
+                        <textarea cols="50" rows="40" readonly>
+
+<!DOCTYPE html>
+<html lang="en">
+                        <head>
+                        <meta charset="UTF-8" />
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                        <title>Attack Generator</title>
+                        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+                        <link rel="stylesheet" href="style.css" />
+  </head>
+ 
+                        <body>
+                        <h1>Homework 3</h1>
+                        <div class="container">
+                        <p>
+                        <label for="M">Number of Systems (M):</label>
+                        <input id="M" type="number" value="10" min="1" step="1" />
+      </p>
+                        <p>
+                        <label for="N">Number of Attacks (N):</label>
+                        <input id="N" type="number" value="10" min="1" step="1" />
+      </p>
+                        <p>
+                        <label for="p">Probability of successfull attack (P): </label>
+                        <input id="p" type="number" value="0.3" min="0" max="1" step="0.1" />
+      </p>
+                        <p>
+                        <label for="p">N-th attack: </label>
+                        <input id="nthAttack"
+                               type="number"
+                               value="2"
+                               min="0"
+                               max="100000"
+                               step="1" />
+      </p>
+    </div>
+ 
+                        <div style="display: flex">
+                        <div style="width: 50%">
+                        <canvas id="myCanvas"></canvas>
+      </div>
+                        <canvas id="histogramChart"
+                                style="width: 50%; max-width: 700px; margin: 5px"></canvas>
+    </div>
+                        <div style="display: flex">
+                        <div class="canvas-wrapper">
+                        <h3>Frequency:</h3>
+                        <canvas id="myCanvas2"></canvas>
+      </div>
+                        <div class="canvas-wrapper">
+                        <h3>Relative frequency:</h3>
+                        <canvas id="myCanvas3"></canvas>
+      </div>
+                        <div class="canvas-wrapper">
+                        <h3>Normalized ratio:</h3>
+                        <canvas id="myCanvas4"></canvas>
+      </div>
+    </div>
+ 
+                        <script>
+                            const myCanvas = document.getElementById("myCanvas");
+                            const ctx = myCanvas.getContext("2d");
+
+                            const myCanvas2 = document.getElementById("myCanvas2");
+                            const myCanvas3 = document.getElementById("myCanvas3");
+                            const myCanvas4 = document.getElementById("myCanvas4");
+                            const myCanvas5 = document.getElementById("histogramChart");
+
+                            myCanvas.addEventListener("mouseenter", function () {
+                                myCanvas.style.pointerEvents = "none";
+                            });
+
+                            myCanvas2.addEventListener("mouseenter", function () {
+                                myCanvas2.style.pointerEvents = "none";
+                            });
+
+                            myCanvas3.addEventListener("mouseenter", function () {
+                                myCanvas3.style.pointerEvents = "none";
+                            });
+                            myCanvas4.addEventListener("mouseenter", function () {
+                                myCanvas4.style.pointerEvents = "none";
+                            });
+                            myCanvas5.addEventListener("mouseenter", function () {
+                                myCanvas5.style.pointerEvents = "none";
+                            });
+
+                            let yAxesHistogram = [];
+                            let xAxesHistogram = [];
+                            let xAxesHistogramAttackN = [];
+
+                            let histogram = document
+                                .getElementById("histogramChart")
+                                .getContext("2d");
+
+                            //const histogramChart = document.getElementById("histogramChart");
+
+                            const N = document.getElementById("N");
+                            const p = document.getElementById("p");
+                            const M = document.getElementById("M");
+                            const attackNumber = document.getElementById("nthAttack");
+                            const colorSystems = [];
+                            let listAttacks = 0;
+
+                            let set = 0;
+
+                            let xValues = Array.from({ length: N.value }, (_, i) => i);
+
+                            let inputs = [N, p, M];
+
+                            inputs.forEach((input) => {
+                                input.addEventListener("input", () => {
+                                    ReloadAttacks();
+                                    ReloadAttacksFrequency();
+                                });
+                            });
+
+                            attackNumber.addEventListener("input", () => {
+                                CalculateFrequencyHistogram();
+                            });
+
+                            ReloadAttacks();
+                            ReloadAttacksFrequency();
+
+                            function ReloadAttacks() {
+                                let numberAttacks = N.value;
+                                let probability = p.value;
+                                let numberSystems = M.value;
+
+                                xValues = Array.from({ length: numberAttacks }, (_, i) => i);
+
+                                listAttacks = GenerateAttacks(
+                                    numberAttacks,
+                                    probability,
+                                    numberSystems
+                                );
+
+                                setInterval(DrawChart(listAttacks, numberSystems, "myCanvas"), 500);
+                            }
+
+                            function GenerateAttacks(numberAttacks, probability, numberSystems) {
+                                const allAttacks = [];
+
+                                for (let j = 0; j < numberSystems; j++) {
+                                    const yValues = [0];
+                                    let sumAttacks = 0;
+
+                                    for (let i = 1; i < numberAttacks; i++) {
+                                        if (Math.random() >= probability) {
+                                            sumAttacks += 1;
+                                        } else {
+                                            sumAttacks -= 1;
+                                        }
+                                        yValues.push(sumAttacks);
+                                    }
+                                    allAttacks.push(yValues);
+                                }
+
+                                return allAttacks;
+                            }
+
+                            function ReloadAttacksFrequency() {
+                                let numberAttacks = N.value;
+                                let probability = p.value;
+                                let numberSystems = M.value;
+
+                                xValues = Array.from({ length: numberAttacks }, (_, i) => i);
+
+                                const frequencyValue = AttacksCalculation(
+                                    numberAttacks,
+                                    probability,
+                                    numberSystems
+                                );
+
+                                const listCumulatedFrequencies = frequencyValue[0];
+                                const listRelativeFrequencies = frequencyValue[1];
+                                const listNormalizedFrequencies = frequencyValue[2];
+
+                                //setInterval(drawChart(listCumulatedFrequencies, numberSystems, "myCanvas2"), 500);
+
+                                DrawChart(listCumulatedFrequencies, numberSystems, "myCanvas2");
+                                DrawChart(listRelativeFrequencies, numberSystems, "myCanvas3");
+                                DrawChart(listNormalizedFrequencies, numberSystems, "myCanvas4");
+
+                                //drawHistogram(listCumulatedFrequencies, numberSystems, "histogramChart");
+                                CalculateFrequencyHistogram();
+                            }
+
+                            function AttacksCalculation(numberAttacks, probability, numberSystems) {
+                                const cumulated = [];
+                                const relative = [];
+                                const normalized = [];
+
+                                for (let j = 0; j < numberSystems; j++) {
+                                    const yValuesCumulated = [0];
+                                    const yValuesRelative = [0];
+                                    const yValuesNormalized = [0];
+                                    let sumAttacksCumulated = 0;
+                                    let sumAttacksRelative = 0;
+                                    let sumAttacksNormalized = 0;
+
+                                    let totalAttacks = 0;
+
+                                    for (let i = 1; i < numberAttacks; i++) {
+                                        totalAttacks += 1;
+
+                                        if (Math.random() >= probability) {
+                                            sumAttacksCumulated += 1;
+                                            sumAttacksRelative = sumAttacksCumulated / totalAttacks;
+                                            sumAttacksNormalized =
+                                                sumAttacksCumulated / Math.sqrt(totalAttacks);
+                                        }
+                                        yValuesCumulated.push(sumAttacksCumulated);
+                                        yValuesRelative.push(sumAttacksRelative);
+                                        yValuesNormalized.push(sumAttacksNormalized);
+                                    }
+                                    totalAttacks = 0;
+
+                                    cumulated.push(yValuesCumulated);
+                                    relative.push(yValuesRelative);
+                                    normalized.push(yValuesNormalized);
+                                }
+                                return [cumulated, relative, normalized];
+                            }
+
+                            function DrawChart(attacks, systems, chartID) {
+                                ctx.clearRect(0, 0, chartID.width, chartID.height);
+
+                                const datasets = [];
+
+                                //Colors of Systems
+                                for (let i = set; i < M.value; i++) {
+                                    const randomColor = getRandomRGBAColor();
+                                    colorSystems.push(randomColor);
+                                    set++;
+                                }
+
+                                for (let i = 0; i < systems; i++) {
+                                    datasets.push({
+                                        label: `System ${i + 1}`,
+                                        fill: false,
+                                        backgroundColor: colorSystems[i],
+                                        borderColor: colorSystems[i],
+                                        data: attacks[i],
+                                    });
+                                }
+
+                                const myChart = new Chart(chartID, {
+                                    type: "line",
+                                    data: {
+                                        labels: xValues,
+                                        datasets: datasets,
+                                    },
+                                    options: {
+                                        responsive: true,
+                                        elements: {
+                                            line: {
+                                                tension: 0.1,
+                                            },
+                                        },
+                                        legend: {
+                                            display: false,
+                                        },
+                                        tooltips: {
+                                            enabled: false,
+                                        },
+                                    },
+                                });
+                            }
+
+                            function getRandomRGBAColor() {
+                                const r = Math.floor(Math.random() * 256); // Random red component (0-255)
+                                const g = Math.floor(Math.random() * 256); // Random green component (0-255)
+                                const b = Math.floor(Math.random() * 256); // Random blue component (0-255)
+                                const a = Math.random(); // Random alpha component (0-1)
+
+                                return `rgba(${r}, ${g}, ${b}, ${a})`;
+                            }
+
+                            //   -----------------------------------
+                            // Get the canvas histogram element
+
+                            CalculateFrequencyHistogram();
+                            function CalculateFrequencyHistogram() {
+                                xAxesHistogram = [];
+                                yAxesHistogram = [];
+                                xAxesHistogramAttackN = [];
+
+                                let lastValues = listAttacks.map((arr) => arr[arr.length - 1]);
+                                let nthAttack = listAttacks.map((arr) => arr[attackNumber.value]);
+
+                                let tempList = [];
+                                let tempMax = [];
+                                let tempMin = [];
+
+                                for (let i = 0; i < listAttacks[0].length; i++) {
+                                    tempList = listAttacks.map((arr) => (i < arr.length ? arr[i] : 0));
+                                    tempMax.push(Math.max(...tempList));
+                                    tempMin.push(Math.min(...tempList));
+                                }
+
+                                let max = Math.max(...tempMax);
+                                let min = Math.min(...tempMin);
+
+                                console.log("max:", max, "min:", min);
+
+                                for (let i = max; i >= min; i--) {
+                                    yAxesHistogram.push(i);
+                                }
+                                xAxesHistogram = new Array(yAxesHistogram.length).fill(0);
+                                xAxesHistogramAttackN = new Array(yAxesHistogram.length).fill(0);
+
+                                for (let i = 0; i < yAxesHistogram.length; i++) {
+                                    for (let j = 0; j < lastValues.length; j++) {
+                                        if (yAxesHistogram[i] == lastValues[j]) {
+                                            xAxesHistogram[i]++;
+                                        }
+                                        if (yAxesHistogram[i] == nthAttack[j]) {
+                                            xAxesHistogramAttackN[i]++;
+                                        }
+                                    }
+                                }
+
+                                // Sample data for the histogram
+                                let data = {
+                                    labels: yAxesHistogram,
+                                    datasets: [
+                                        {
+                                            label: "Last Attack",
+                                            data: xAxesHistogram,
+                                            backgroundColor: getRandomRGBAColor(),
+                                            borderWidth: 1,
+                                        },
+                                        {
+                                            label: attackNumber.value + "-th Attack",
+                                            data: xAxesHistogramAttackN,
+                                            backgroundColor: getRandomRGBAColor(),
+                                            borderWidth: 1,
+                                        },
+                                    ],
+                                };
+
+                                // Create the histogram chart
+                                let horizontalHistogram = new Chart(histogram, {
+                                    type: "horizontalBar", // Set the chart type to "horizontalBar"
+                                    data: data,
+                                    options: {
+                                        indexAxis: "y", // Set the index axis to 'y' for horizontal bars
+                                        scales: {
+                                            xAxes: [
+                                                {
+                                                    ticks: {
+                                                        min: 0,
+                                                    },
+                                                },
+                                            ],
+                                        },
+                                    },
+                                });
+                            }
+</script>
+  </body>
+</html>
+</textarea>
+
+                        <h2 class="section-heading">C# Solution:</h2>
+
+                        <textarea cols="50" rows="40" readonly>
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Windows.Forms.DataVisualization.Charting;
+using System.Globalization;
+ 
+namespace Hw3
+{
+    public partial class Form1 : Form
+    {
+ 
+        public Form1()
+        {
+            InitializeComponent();
+            WindowState = FormWindowState.Maximized;
+ 
+            textBox1.Text = "10";
+            textBox2.Text = "10";
+            textBox3.Text = "0.6";
+ 
+        }
+ 
+        public static Random random = new Random();
+ 
+        /*
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            fillChart();
+        }
+        */
+ 
+ 
+        //fillChart method
+        private void fillChart()
+        {
+            int numberOfAttacks = int.Parse(textBox2.Text);
+            int numberOfSystems = int.Parse(textBox1.Text);
+            float probability;
+ 
+            int indexNthAttack = 3;
+ 
+            if (float.TryParse(textBox3.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out probability))
+            {
+                Console.WriteLine("Conversione riuscita. Valore float: " + probability);
+            }
+            else
+            {
+                Console.WriteLine("Conversione non riuscita. L'input non è un valore float valido.");
+            }
+ 
+   
+ 
+        }
+ 
+        private void Form1_Load_1(object sender, EventArgs e)
+        {
+            fillChart();
+ 
+        }
+ 
+ 
+ 
+        public static int[] generateX(int size)
+        {
+            int[] x = new int[size];
+            for (int i = 0; i < size; i++)
+            {
+                x[i] = i;
+            }
+ 
+            return x;
+        }
+ 
+        public static float GenerateRandomDouble(float minValue, float maxValue)
+        {
+            if (minValue > maxValue)
+                throw new ArgumentException("minValue must be less than or equal to maxValue");
+ 
+            float randomValue = (float)random.NextDouble(); // Generates a random double between 0 and 1
+            float range = maxValue - minValue;
+            float scaledValue = randomValue * range;
+            float result = scaledValue + minValue;
+ 
+            return result;
+        }
+ 
+        public static (int[], double[], double[], double[]) generateCoordinateVector(int size, float probability, float minValue, float maxValue)
+        {
+            int[] y = new int[size];
+            double[] cumulatedFrequency = new double[size];
+            double[] relativeFrequency = new double[size];
+            double[] normalizedRatio = new double[size];
+            y[0] = 0;
+            int sum = 0;
+            double sumFrequency = 0;
+            float value = 0;
+ 
+ 
+            for (int i = 1; i < size; i++)
+            {
+                value = GenerateRandomDouble(minValue, maxValue);
+ 
+                sum += generateY(value, probability);
+                sumFrequency += generateFrequencyY(value, probability);
+                 
+                y[i] = sum;
+                cumulatedFrequency[i] = sumFrequency;
+                relativeFrequency[i] = sumFrequency/i+1;
+                normalizedRatio[i] = sumFrequency / Math.Sqrt(i + 1);
+            }
+ 
+            return (y, cumulatedFrequency, relativeFrequency, normalizedRatio);
+        }
+ 
+        public static int generateY(float attack, float probability)
+        {
+            if (attack <= probability) return -1;
+            else return +1;
+        }
+ 
+        public static int generateFrequencyY(float attack, float probability)
+        {
+            if (attack > probability) return 0;
+            else return +1;
+        }
+ 
+        private void button1_Click(object sender, EventArgs e)
+        {
+ 
+            //timer1.Stop(); // Arresta il Timer se è in esecuzione
+            //timer1.Start(); // Riavvia il Timer
+            fillChart();
+ 
+        }
+    }
+}
+ </textarea>
                         <hr class="wp-block-separator has-alpha-channel-opacity">
                         <h2 class="section-heading">#2</h2>
                         <h4 class="wp-block-heading"><strong><em>Q:</em></strong></h4>
@@ -75,7 +625,25 @@
                             Recall briefly the definition and math notions relevant to "probability space" and make some simple examples, indicating among the triple of the space the meaning of each element in your particular example.
                             If you wanted to model probabilistically the homework Exercise 1, explain what are the 3 sets of your probability space and their elements, in this case.
                         </p>
-     
+
+                        <p>
+                            A probability space is a mathematical concept used to model random experiments and their outcomes. It consists of three key components:
+
+                            <ul>
+                                <li>Sample Space (Ω): The sample space is the set of all possible outcomes of a random experiment. Each element in Ω represents a distinct and possible outcome. In your case, for Exercise 1, the sample space might be the set of all possible sequences of security scores for M systems, where each system’s score can be -1 (penetrated) or 1 (protected). The size of Ω would be 2^M, as each system has two possible outcomes, and there are M systems.</li>
+                                <li> Event Space (F): The event space is a collection of subsets of the sample space Ω. These subsets represent specific events or outcomes of interest. For Exercise 1, the event space might include sets of security score trajectories for the systems that satisfy certain conditions, like “at least one system is penetrated in every attack.”</li>
+                                <li> Probability Measure (P): The probability measure assigns a probability to each event in the event space. It provides a way to quantify the likelihood of different outcomes. In Exercise 1, you would need to define a probability measure to specify the probability of each possible security score trajectory based on the constant penetration probability p.</li>
+                            </ul>
+                        </p>
+                        <p>Now, let’s discuss the three sets of the probability space for Exercise 1 (Part a) based on the sample space definition:</p>
+                        <p>
+                        <ul>
+                            <li>Sample Space (Ω): Each element in Ω represents a sequence of security scores for M systems over N attacks. For a single system, the sequence can look like {1, -1, 1, 1, -1, …}, where each value is either 1 (protected) or -1 (penetrated). The sample space, in this case, is the set of all possible combinations of these sequences for all M systems.</li>
+                            <li>Event Space (F): The event space consists of subsets of Ω representing specific conditions or events you want to analyze. For example, one event in F might be “at least one system is penetrated in every attack.” Another event might be “all systems are always protected.” Each event in F represents a specific condition or set of outcomes that you want to study.</li>
+                            <li>Probability Measure (P): The probability measure P assigns a probability to each event in F. For example, P(event A) might represent the probability that the specified condition (event A) is met during the simulation. The probability measure depends on the constant penetration probability p.</li>
+                        </ul>
+                            </p>
+                        <p>In Part b of Exercise 1, you would have a similar probability space, but the event space and probability measure would change to represent cumulative frequency, relative frequency, and normalized ratio of penetration. The event space would consist of events like “cumulative frequency reaches a certain value,” “relative frequency is within a specific range,” and “normalized ratio meets a certain condition.”</p>
                     </div>
                 </div>
             </div>
