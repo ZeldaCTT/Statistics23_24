@@ -623,6 +623,11 @@ namespace Hw3
 
 
                         <textarea cols="50" rows="40" readonly>
+public static int generateFrequencyY(float attack, float probability)
+       {
+           if (attack > probability) return 0;
+           else return +1;
+       }
 //min value of probability
   float minValue = 0;
   //max value of probability
