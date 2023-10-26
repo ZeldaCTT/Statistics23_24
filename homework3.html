@@ -68,9 +68,9 @@
                         </p>
                         <h4 class="wp-block-heading"><strong><em>Solution:</em></strong></h4>
                         <p></p>
-                        <h2 class="section-heading">Part A</h2>
+                        <h4 class="wp-block-heading"><strong><em>Part A</em></strong></h4>
 
-                        <h2 class="section-heading">JS Solution:</h2>
+                        <h4 class="wp-block-heading"><strong><em>JS Solution:</em></strong></h4>
 
                         <p></p>
                         <textarea cols="50" rows="40" readonly>
@@ -472,7 +472,8 @@ fs.writeFile('scores.json', jsonData, (err) => {
 </html>
 </textarea>
 
-                        <h2 class="section-heading">C# Solution:</h2>
+
+                        <h4 class="wp-block-heading"><strong><em>C# Solution:</em></strong></h4>
 
                         <textarea cols="50" rows="40" readonly>
 using System;
@@ -618,6 +619,80 @@ namespace Hw3
     }
 }
  </textarea>
+                        <h4 class="wp-block-heading"><strong><em>Part B</em></strong></h4>
+
+
+                        <textarea cols="50" rows="40" readonly>
+//min value of probability
+  float minValue = 0;
+  //max value of probability
+  float maxValue = 1;
+ 
+ 
+ 
+  int[] x = generateX(numberOfAttacks);
+  int[] y;
+  //int[] yHistogram = new int[numberOfAttacks];
+  double[] cumulatedFrequency;
+  double[] relativeFrequency;
+  double[] normalizedRatio;
+ 
+  //int[] lastValues = new int[numberOfSystems];
+  //int[] nthAttack = new int[numberOfSystems];
+ 
+  chart1.Series.Clear();
+  chart2.Series.Clear();
+  chart3.Series.Clear();
+  chart4.Series.Clear();
+ 
+  (int[], double[], double[], double[]) result;
+ 
+ 
+ 
+  for (int i = 0; i < numberOfSystems; i++)
+  {
+ 
+      result = generateCoordinateVector(numberOfAttacks, probability, minValue, maxValue);
+ 
+      y = result.Item1;
+      cumulatedFrequency = result.Item2;
+      relativeFrequency = result.Item3;
+      normalizedRatio = result.Item4;
+ 
+ 
+      //lastValues.Append(y[y.Length - 1]);
+      //nthAttack.Append(y[indexNthAttack]);
+ 
+      var series = new Series($"Systems {i+1}");
+      series.ChartType = SeriesChartType.Line;
+      chart1.ChartAreas[0].AxisX.Minimum = 0;
+ 
+      series.Points.DataBindXY(x, y);
+      chart1.Series.Add(series);
+ 
+      var series2 = new Series($"Systems {i + 1}");
+      series2.ChartType = SeriesChartType.Line;
+      chart2.ChartAreas[0].AxisX.Minimum = 0;
+ 
+      series2.Points.DataBindXY(x, cumulatedFrequency);
+      chart2.Series.Add(series2);
+ 
+      var series3 = new Series($"Systems {i + 1}");
+      series3.ChartType = SeriesChartType.Line;
+      chart3.ChartAreas[0].AxisX.Minimum = 0;
+ 
+      series3.Points.DataBindXY(x, relativeFrequency);
+      chart3.Series.Add(series3);
+ 
+      var series4 = new Series($"Systems {i + 1}");
+      series4.ChartType = SeriesChartType.Line;
+      chart4.ChartAreas[0].AxisX.Minimum = 0;
+ 
+      series4.Points.DataBindXY(x, normalizedRatio);
+      chart4.Series.Add(series4);
+  }
+ </textarea>
+
                         <hr class="wp-block-separator has-alpha-channel-opacity">
                         <h2 class="section-heading">#2</h2>
                         <h4 class="wp-block-heading"><strong><em>Q:</em></strong></h4>
@@ -625,7 +700,7 @@ namespace Hw3
                             Recall briefly the definition and math notions relevant to "probability space" and make some simple examples, indicating among the triple of the space the meaning of each element in your particular example.
                             If you wanted to model probabilistically the homework Exercise 1, explain what are the 3 sets of your probability space and their elements, in this case.
                         </p>
-
+                        <h4 class="wp-block-heading"><strong><em>A:</em></strong></h4>
                         <p>
                             A probability space is a mathematical concept used to model random experiments and their outcomes. It consists of three key components:
 
@@ -637,12 +712,12 @@ namespace Hw3
                         </p>
                         <p>Now, let’s discuss the three sets of the probability space for Exercise 1 (Part a) based on the sample space definition:</p>
                         <p>
-                        <ul>
-                            <li>Sample Space (Ω): Each element in Ω represents a sequence of security scores for M systems over N attacks. For a single system, the sequence can look like {1, -1, 1, 1, -1, …}, where each value is either 1 (protected) or -1 (penetrated). The sample space, in this case, is the set of all possible combinations of these sequences for all M systems.</li>
-                            <li>Event Space (F): The event space consists of subsets of Ω representing specific conditions or events you want to analyze. For example, one event in F might be “at least one system is penetrated in every attack.” Another event might be “all systems are always protected.” Each event in F represents a specific condition or set of outcomes that you want to study.</li>
-                            <li>Probability Measure (P): The probability measure P assigns a probability to each event in F. For example, P(event A) might represent the probability that the specified condition (event A) is met during the simulation. The probability measure depends on the constant penetration probability p.</li>
-                        </ul>
-                            </p>
+                            <ul>
+                                <li>Sample Space (Ω): Each element in Ω represents a sequence of security scores for M systems over N attacks. For a single system, the sequence can look like {1, -1, 1, 1, -1, …}, where each value is either 1 (protected) or -1 (penetrated). The sample space, in this case, is the set of all possible combinations of these sequences for all M systems.</li>
+                                <li>Event Space (F): The event space consists of subsets of Ω representing specific conditions or events you want to analyze. For example, one event in F might be “at least one system is penetrated in every attack.” Another event might be “all systems are always protected.” Each event in F represents a specific condition or set of outcomes that you want to study.</li>
+                                <li>Probability Measure (P): The probability measure P assigns a probability to each event in F. For example, P(event A) might represent the probability that the specified condition (event A) is met during the simulation. The probability measure depends on the constant penetration probability p.</li>
+                            </ul>
+                        </p>
                         <p>In Part b of Exercise 1, you would have a similar probability space, but the event space and probability measure would change to represent cumulative frequency, relative frequency, and normalized ratio of penetration. The event space would consist of events like “cumulative frequency reaches a certain value,” “relative frequency is within a specific range,” and “normalized ratio meets a certain condition.”</p>
                     </div>
                 </div>
